@@ -17,19 +17,22 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::prefix('articles')->name('blog.') -> group(function () {
+Route::prefix('blog')->name('blog.') -> group(function () {
     
     Route::get('/', function (Request $request) {
-        return [ 
-            "link" => \route('blog.show', ['slug' => 'article', 'id' => 13]),
-        ];
+
+            return App\Models\post::paginate(25);        
+            
     })->name('index');
     
     Route::get('/{slug}-{id}', function (string $slug, string $id, Request $request) {
-        return [ 
-            "slug" => $slug,
-            "id" => $id,
-            "name" => $request->input('name')    ];
+
+        $post = App\Models\post::findOrFail($id);
+        if ($post->slug !== $slug) {
+            return to_route('blog.show', ['slug' => $post->slug, 'id'=> $post->id]);
+        }
+
+        return $post;
     })->where([
         'slug' => '[a-z0-9-]+',
         'id' => '[0-9]+'
