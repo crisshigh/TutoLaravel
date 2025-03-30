@@ -19,24 +19,11 @@ Route::get('/', function () {
 
 Route::prefix('blog')->name('blog.') -> group(function () {
     
-    Route::get('/', function (Request $request) {
-
-            return App\Models\post::paginate(25);        
-            
-    })->name('index');
+    Route::get('/', [\App\Http\Controllers\BlogController::class, 'index'])->name('index');
     
-    Route::get('/{slug}-{id}', function (string $slug, string $id, Request $request) {
-
-        $post = App\Models\post::findOrFail($id);
-        if ($post->slug !== $slug) {
-            return to_route('blog.show', ['slug' => $post->slug, 'id'=> $post->id]);
-        }
-
-        return $post;
-    })->where([
-        'slug' => '[a-z0-9-]+',
+    Route::get('/{slug}-{id}', [\App\Http\Controllers\BlogController::class, 'show'])->where([
+        'slug' => '[a-z0-9\-]+',
         'id' => '[0-9]+'
     ])->name('show');
 
 });
-
